@@ -1,8 +1,13 @@
 'use client'
 
-import { motion } from 'motion/react';
-import { MessageSquare, Users, Globe, Wrench, TrendingUp } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
+import { MessageSquare, Users, Globe, Wrench, TrendingUp } from 'lucide-react'
+import { ImageWithFallback } from './figma/ImageWithFallback'
+
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 const services = [
   {
@@ -41,44 +46,66 @@ const services = [
     gradient: 'from-gray-700 to-purple-900',
     comingSoon: true,
   },
-];
+]
 
 export function Services() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    // Header fade-in on scroll
+    gsap.from('.services-header', {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.services-header',
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+      },
+    })
+
+    // Cards: set initial state then batch-reveal on scroll
+    gsap.set('.service-card', { opacity: 0, y: 20 })
+    ScrollTrigger.batch('.service-card', {
+      onEnter: (elements) => {
+        gsap.to(elements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+        })
+      },
+      start: 'top 85%',
+      once: true,
+    })
+  }, { scope: sectionRef })
+
   return (
-    <section className="py-24 px-4 bg-black relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 px-4 bg-black relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-black" />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl" />
 
       <div className="container mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <div className="services-header text-center mb-16">
           <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
             Nuestros Servicios
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Soluciones tecnológicas completas para llevar tu negocio al siguiente nivel
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <motion.div
+          {services.map((service) => (
+            <div
               key={service.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -10 }}
-              className="group relative"
+              className="service-card group relative hover:-translate-y-[10px] transition-transform duration-300"
             >
-              <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-600 transition-all duration-300">
+              <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-600 transition-colors duration-300">
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden">
                   <ImageWithFallback
@@ -87,7 +114,6 @@ export function Services() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className={`absolute inset-0 bg-gradient-to-t ${service.gradient} opacity-60`} />
-                  
                   {service.comingSoon && (
                     <div className="absolute top-4 right-4 bg-gray-700 text-white text-xs font-semibold px-3 py-1 rounded-full">
                       Próximamente
@@ -104,13 +130,13 @@ export function Services() {
                   <p className="text-gray-400 leading-relaxed">{service.description}</p>
                 </div>
 
-                {/* Hover Effect */}
+                {/* Hover overlay */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
     </section>
-  );
+  )
 }

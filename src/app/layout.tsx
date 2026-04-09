@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import '../styles/index.css'
+import { WhatsAppButton } from './components/WhatsAppButton'
 
 export const metadata: Metadata = {
   title: 'INSANITY - Soluciones Digitales',
@@ -13,7 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+        <WhatsAppButton />
+      </body>
     </html>
   )
 }
