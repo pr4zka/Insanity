@@ -1,3 +1,5 @@
+'use client'
+
 import { motion } from 'motion/react';
 import { Shield, Clock, Headphones, Target, CheckCircle2, Users, Zap, Award } from 'lucide-react';
 

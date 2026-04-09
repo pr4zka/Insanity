@@ -1,3 +1,5 @@
+'use client'
+
 import { motion } from 'motion/react';
 import { MessageSquare, Users, Globe, Wrench, TrendingUp } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';

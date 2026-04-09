@@ -1,8 +1,26 @@
+'use client'
+
 import { motion } from 'motion/react';
 import { ArrowRight, Sparkles, MessageCircle, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 
+type Particle = { left: string; top: string; duration: number; delay: number }
+
 export function Hero() {
+  const [particles, setParticles] = useState<Particle[]>([])
+
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 30 }, () => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        duration: Math.random() * 4 + 3,
+        delay: Math.random() * 2,
+      }))
+    )
+  }, [])
+
   const handleWhatsApp = () => {
     window.open('https://wa.me/1234567890?text=Hola%20INSANITY,%20me%20gustaría%20más%20información', '_blank');
   };
@@ -31,24 +49,21 @@ export function Hero() {
       
       {/* Floating Particles */}
       <div className="absolute inset-0 z-0">
-        {[...Array(30)].map((_, i) => (
+        {particles.map((p, i) => (
           <motion.div
             key={i}
             className="absolute w-2 h-2 bg-white rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
+            style={{ left: p.left, top: p.top }}
             animate={{
               y: [0, -30, 0],
               opacity: [0.2, 1, 0.2],
               scale: [0.5, 1.2, 0.5],
             }}
             transition={{
-              duration: Math.random() * 4 + 3,
+              duration: p.duration,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: Math.random() * 2,
+              delay: p.delay,
             }}
           />
         ))}
