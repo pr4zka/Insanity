@@ -2,11 +2,10 @@
 
 import { useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { Sparkles } from 'lucide-react'
 
-gsap.registerPlugin(useGSAP, ScrollTrigger)
+gsap.registerPlugin(useGSAP)
 
 const NAV_LINKS = [
   { label: 'Servicios', href: '#servicios' },
@@ -27,21 +26,6 @@ export function Navbar() {
     tl.from('.nav-logo', { opacity: 0, x: -20, duration: 0.5, ease: 'power2.out' }, '-=0.4')
     tl.from('.nav-link', { opacity: 0, y: -10, duration: 0.4, stagger: 0.08, ease: 'power2.out' }, '-=0.3')
     tl.from('.nav-cta', { opacity: 0, scale: 0.8, duration: 0.5, ease: 'back.out(2)' }, '-=0.3')
-
-    // ── Scroll-aware background ──────────────────────────────
-    ScrollTrigger.create({
-      start: 'top+=80 top',
-      onEnter: () => gsap.to(navRef.current, {
-        backgroundColor: 'rgba(0,0,0,0.88)',
-        borderBottomColor: 'rgba(255,255,255,0.07)',
-        duration: 0.45, ease: 'power2.out',
-      }),
-      onLeaveBack: () => gsap.to(navRef.current, {
-        backgroundColor: 'rgba(0,0,0,0)',
-        borderBottomColor: 'rgba(255,255,255,0)',
-        duration: 0.45, ease: 'power2.out',
-      }),
-    })
 
     // Initial state for mobile menu (hidden)
     gsap.set(mobileMenuRef.current, { opacity: 0, y: -20, clipPath: 'inset(0 0 100% 0)', pointerEvents: 'none' })

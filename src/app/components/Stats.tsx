@@ -22,6 +22,8 @@ export function Stats() {
   const hasPlayed  = useRef(false)
   const { activeIndex } = useSectionContext()
 
+  const ambientStarted = useRef(false)
+
   useGSAP(() => {
     const tl = gsap.timeline({ paused: true })
 
@@ -47,18 +49,21 @@ export function Stats() {
     })
 
     tlRef.current = tl
-
-    // Ambient nebula breathe (always running, no scroll)
-    gsap.to('.stats-orb',     { scale: 1.3,  duration: 6,  repeat: -1, yoyo: true, ease: 'sine.inOut' })
-    gsap.to('.stats-nebula-l',{ scale: 1.15, duration: 9,  repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2 })
-    gsap.to('.stats-nebula-r',{ scale: 1.2,  duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 4 })
   }, { scope: sectionRef })
 
   useEffect(() => {
-    if (activeIndex === SECTION_INDEX && !hasPlayed.current) {
-      hasPlayed.current = true
-      // Small delay so section wipe transition finishes first
-      setTimeout(() => tlRef.current?.play(), 400)
+    if (activeIndex === SECTION_INDEX) {
+      if (!hasPlayed.current) {
+        hasPlayed.current = true
+        setTimeout(() => tlRef.current?.play(), 400)
+      }
+      // Start ambient nebula breathe only once, when section first becomes visible
+      if (!ambientStarted.current) {
+        ambientStarted.current = true
+        gsap.to('.stats-orb',      { scale: 1.3,  duration: 6,  repeat: -1, yoyo: true, ease: 'sine.inOut' })
+        gsap.to('.stats-nebula-l', { scale: 1.15, duration: 9,  repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2 })
+        gsap.to('.stats-nebula-r', { scale: 1.2,  duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 4 })
+      }
     }
   }, [activeIndex])
 

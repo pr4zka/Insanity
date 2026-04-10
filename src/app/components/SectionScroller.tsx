@@ -49,7 +49,7 @@ export function SectionScroller({
       const dFactor = direction === -1 ? -1 : 1
 
       const tl = gsap.timeline({
-        defaults: { duration: 1.25, ease: 'power1.inOut' },
+        defaults: { duration: 0.85, ease: 'power2.inOut' },
         onComplete: () => { animating = false },
       })
 
@@ -104,9 +104,9 @@ export function SectionScroller({
             className="ss-section"
             style={{ position: 'fixed', inset: 0, visibility: 'hidden', zIndex: 0 }}
           >
-            <div className="ss-outer" style={{ width: '100%', height: '100%', overflowY: 'hidden' }}>
-              <div className="ss-inner" style={{ width: '100%', height: '100%', overflowY: 'hidden' }}>
-                <div className="ss-bg" style={{ position: 'absolute', inset: 0 }}>
+            <div className="ss-outer" style={{ width: '100%', height: '100%', overflowY: 'hidden', willChange: 'transform' }}>
+              <div className="ss-inner" style={{ width: '100%', height: '100%', overflowY: 'hidden', willChange: 'transform' }}>
+                <div className="ss-bg" style={{ position: 'absolute', inset: 0, willChange: 'transform' }}>
                   {child}
                 </div>
               </div>

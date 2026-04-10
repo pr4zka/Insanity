@@ -19,7 +19,7 @@ interface PlanetDef {
 }
 
 const PLANETS: PlanetDef[] = [
-  { name: 'Mercury', r: 3,  orbit: 90,  speed: 0.80, color: '#a8a8a8', glowColor: '#888',      angle0: 0.8 },
+  { name: 'Mercury', r: 3,  orbit: 90,  speed: 0.80, color: '#a8a8a8', glowColor: '#888888',   angle0: 0.8 },
   { name: 'Venus',   r: 6,  orbit: 145, speed: 0.50, color: '#e8c87a', glowColor: '#c09030',   angle0: 2.1 },
   { name: 'Earth',   r: 7,  orbit: 205, speed: 0.30, color: '#4488ee', glowColor: '#1155cc',   angle0: 4.5, hasMoon: true },
   { name: 'Mars',    r: 5,  orbit: 275, speed: 0.18, color: '#cc4422', glowColor: '#882200',   angle0: 1.2 },
@@ -155,7 +155,11 @@ function drawPlanet(
   // Glow
   const gr = r * 3
   const gGrad = ctx.createRadialGradient(x, y, r * 0.5, x, y, gr)
-  gGrad.addColorStop(0, glowColor + 'aa')
+  // Expand 3-char hex (#rgb) to 6-char (#rrggbb) before appending alpha
+  const gc = glowColor.length === 4
+    ? '#' + glowColor[1] + glowColor[1] + glowColor[2] + glowColor[2] + glowColor[3] + glowColor[3]
+    : glowColor
+  gGrad.addColorStop(0, gc + 'aa')
   gGrad.addColorStop(1, 'transparent')
   ctx.fillStyle = gGrad
   ctx.beginPath()
@@ -270,16 +274,20 @@ export function SolarSystem({ className = '' }: { className?: string }) {
     const ro = new ResizeObserver(setSize)
     ro.observe(canvas)
 
-    const stars = buildStars(320)
-    const asteroids = buildAsteroids(140)
+    const stars = buildStars(150)
+    const asteroids = buildAsteroids(60)
 
     // Planets get individual angle refs so they start spread out
     const angles = PLANETS.map((p) => p.angle0)
 
     let t = 0
+    let frameCount = 0
     const SUN_R = 28
 
     const tick = () => {
+      // Throttle to ~30fps — SolarSystem is a background element
+      frameCount++
+      if (frameCount % 2 !== 0) return
       const W = canvas.width
       const H = canvas.height
       if (!W || !H) return
@@ -370,6 +378,7 @@ export function SolarSystem({ className = '' }: { className?: string }) {
     <canvas
       ref={canvasRef}
       className={`w-full h-full ${className}`}
+      style={{ willChange: 'transform' }}
       aria-hidden="true"
     />
   )

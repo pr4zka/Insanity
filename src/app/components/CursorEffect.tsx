@@ -64,6 +64,8 @@ export function CursorEffect() {
       }
     }
 
+    let lastMoveTime = 0
+
     const onMove = (e: MouseEvent) => {
       prev.x = raw.x; prev.y = raw.y
       raw.x  = e.clientX; raw.y  = e.clientY
@@ -72,10 +74,14 @@ export function CursorEffect() {
       // Spawn more particles the faster you move
       const count = Math.min(Math.floor(speed * 0.7) + 1, 12)
       spawnParticles(count, speed)
+      lastMoveTime = Date.now()
     }
     window.addEventListener('mousemove', onMove)
 
     const tick = () => {
+      // Skip redraw if cursor has been idle >150ms and there are no active particles
+      const idle = Date.now() - lastMoveTime > 150
+      if (idle && particles.length === 0) return
       const W = canvas.width
       const H = canvas.height
       ctx.clearRect(0, 0, W, H)
@@ -181,7 +187,7 @@ export function CursorEffect() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 9998 }}
+      style={{ zIndex: 9998, willChange: 'transform' }}
       aria-hidden="true"
     />
   )
