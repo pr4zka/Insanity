@@ -1,13 +1,15 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { ExternalLink, Calendar, Tag } from 'lucide-react'
 import { ImageWithFallback } from './figma/ImageWithFallback'
+import { useSectionContext } from './SectionContext'
 
-gsap.registerPlugin(useGSAP, ScrollTrigger)
+gsap.registerPlugin(useGSAP)
+
+const SECTION_INDEX = 4
 
 const projects = [
   {
@@ -18,6 +20,7 @@ const projects = [
     url: 'https://example.com/techvision',
     date: 'Marzo 2026',
     tags: ['React', 'Node.js', 'Stripe'],
+    accent: 'from-blue-500 to-purple-600',
   },
   {
     title: 'Sabor Gourmet',
@@ -27,6 +30,7 @@ const projects = [
     url: 'https://example.com/saborgourmet',
     date: 'Febrero 2026',
     tags: ['Next.js', 'CMS', 'API'],
+    accent: 'from-orange-500 to-red-500',
   },
   {
     title: 'GlobalTech Solutions',
@@ -36,6 +40,7 @@ const projects = [
     url: 'https://example.com/globaltech',
     date: 'Enero 2026',
     tags: ['WordPress', 'PHP', 'MySQL'],
+    accent: 'from-gray-400 to-gray-600',
   },
   {
     title: 'FitPower Gym',
@@ -45,6 +50,7 @@ const projects = [
     url: 'https://example.com/fitpower',
     date: 'Diciembre 2025',
     tags: ['Vue.js', 'Firebase', 'PWA'],
+    accent: 'from-green-500 to-emerald-600',
   },
   {
     title: 'InnovateLab',
@@ -54,6 +60,7 @@ const projects = [
     url: 'https://example.com/innovatelab',
     date: 'Noviembre 2025',
     tags: ['React', 'Three.js', 'Tailwind'],
+    accent: 'from-violet-500 to-purple-600',
   },
   {
     title: 'Urban Realty',
@@ -63,139 +70,177 @@ const projects = [
     url: 'https://example.com/urbanrealty',
     date: 'Octubre 2025',
     tags: ['Angular', 'MongoDB', 'Maps API'],
+    accent: 'from-cyan-500 to-blue-600',
   },
 ]
 
 export function Portfolio() {
   const sectionRef = useRef<HTMLElement>(null)
+  const tlRef      = useRef<gsap.core.Timeline | null>(null)
+  const hasPlayed  = useRef(false)
+  const { activeIndex } = useSectionContext()
 
   useGSAP(() => {
-    // Header
-    gsap.from('.portfolio-header', {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: '.portfolio-header',
-        start: 'top 80%',
-        toggleActions: 'play none none none',
-      },
+    const tl = gsap.timeline({ paused: true })
+
+    tl.from('.portfolio-tag',   { opacity: 0, y: -20, scale: 0.8, duration: 0.5, ease: 'back.out(2)' })
+      .from('.portfolio-title', { opacity: 0, y: 50, duration: 0.75, ease: 'power3.out' }, '-=0.2')
+      .from('.portfolio-desc',  { opacity: 0, y: 25, duration: 0.6, ease: 'power2.out' }, '-=0.4')
+
+    tl.addLabel('cards')
+
+    projects.forEach((_, i) => {
+      const col     = i % 3
+      const yOffset = 40 + col * 20
+      const delay   = col * 0.12
+
+      tl.from(`.portfolio-card-${i}`, {
+        opacity: 0, y: yOffset, scale: 0.93,
+        clipPath: 'inset(10% 0 10% 0 round 16px)',
+        duration: 0.85, ease: 'power3.out',
+      }, `cards+=${delay}`)
+
+      tl.from(`.portfolio-tags-${i} span`, {
+        opacity: 0, scale: 0.7, y: 10,
+        duration: 0.4, stagger: 0.08, ease: 'back.out(1.5)',
+      }, `cards+=${delay + 0.4}`)
     })
 
-    // Project cards batch reveal
-    gsap.set('.portfolio-card', { opacity: 0, y: 20 })
-    ScrollTrigger.batch('.portfolio-card', {
-      onEnter: (elements) => {
-        gsap.to(elements, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: 'power2.out',
-        })
-      },
-      start: 'top 85%',
-      once: true,
-    })
+    tl.from('.portfolio-cta-block', {
+      opacity: 0, y: 40, scale: 0.95,
+      duration: 0.7, ease: 'back.out(1.5)',
+    }, '+=0.1')
 
-    // CTA
-    gsap.from('.portfolio-cta', {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: '.portfolio-cta',
-        start: 'top 85%',
-        toggleActions: 'play none none none',
-      },
-    })
+    tlRef.current = tl
   }, { scope: sectionRef })
 
+  useEffect(() => {
+    if (activeIndex === SECTION_INDEX && !hasPlayed.current) {
+      hasPlayed.current = true
+      setTimeout(() => tlRef.current?.play(), 400)
+    }
+  }, [activeIndex])
+
+  // Image parallax hover
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const cards = document.querySelectorAll<HTMLElement>('.portfolio-card-hover')
+    const cleanup: (() => void)[] = []
+
+    cards.forEach((card) => {
+      const img     = card.querySelector<HTMLElement>('.portfolio-img')
+      const overlay = card.querySelector<HTMLElement>('.portfolio-overlay')
+
+      const onMove  = (e: MouseEvent) => {
+        const r  = card.getBoundingClientRect()
+        const dx = ((e.clientX - (r.left + r.width  / 2)) / r.width)  * 12
+        const dy = ((e.clientY - (r.top  + r.height / 2)) / r.height) * 12
+        if (img) gsap.to(img, { x: dx, y: dy, scale: 1.08, duration: 0.4, ease: 'power2.out' })
+      }
+      const onEnter = () => { if (overlay) gsap.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' }) }
+      const onLeave = () => {
+        if (img)     gsap.to(img,     { x: 0, y: 0, scale: 1, duration: 0.6, ease: 'power3.out' })
+        if (overlay) gsap.to(overlay, { opacity: 0, duration: 0.3, ease: 'power2.in' })
+      }
+
+      card.addEventListener('mousemove',  onMove)
+      card.addEventListener('mouseenter', onEnter)
+      card.addEventListener('mouseleave', onLeave)
+      cleanup.push(() => {
+        card.removeEventListener('mousemove',  onMove)
+        card.removeEventListener('mouseenter', onEnter)
+        card.removeEventListener('mouseleave', onLeave)
+      })
+    })
+    return () => cleanup.forEach((fn) => fn())
+  }, [])
+
   return (
-    <section ref={sectionRef} className="py-24 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden">
-      <div className="absolute top-0 right-1/3 w-96 h-96 bg-purple-900/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-gray-800/20 rounded-full blur-3xl" />
+    <section
+      ref={sectionRef}
+      id="portfolio"
+      className="min-h-screen flex flex-col justify-center py-28 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
+    >
+      <div className="portfolio-orb-tr absolute top-0 right-1/3 w-[28rem] h-[28rem] bg-purple-900/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="portfolio-orb-bl absolute bottom-0 left-1/3 w-[28rem] h-[28rem] bg-gray-800/15 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
-        <div className="portfolio-header text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+        <div className="portfolio-header text-center mb-20">
+          <div className="portfolio-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-gray-700/50 bg-gray-900/40 text-gray-400 text-xs uppercase tracking-[0.25em]">
+            Nuestro trabajo
+          </div>
+          <h2 className="portfolio-title text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             Proyectos Destacados
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="portfolio-desc text-xl text-gray-400 max-w-2xl mx-auto">
             Descubre algunos de nuestros trabajos más recientes y exitosos
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
+          {projects.map((project, i) => (
             <a
               key={project.title}
               href={project.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="portfolio-card group relative block hover:-translate-y-[10px] transition-transform duration-300"
+              className={`portfolio-card-${i} portfolio-card-hover relative block rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 hover:border-gray-700/70 transition-colors duration-300 group`}
             >
-              <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-600 transition-colors duration-300">
-                {/* Image */}
-                <div className="relative h-56 overflow-hidden">
-                  <ImageWithFallback
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-75"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="text-center">
-                      <ExternalLink className="w-12 h-12 text-white mx-auto mb-2" />
-                      <span className="text-white font-semibold">Ver proyecto</span>
-                    </div>
-                  </div>
-                  <div className="absolute top-4 left-4 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-700">
-                    {project.category}
+              <div className="relative h-56 overflow-hidden">
+                <ImageWithFallback
+                  src={project.image}
+                  alt={project.title}
+                  className="portfolio-img w-full h-full object-cover"
+                />
+                <div className="portfolio-overlay absolute inset-0 bg-black/65 opacity-0 flex items-center justify-center">
+                  <div className="text-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <ExternalLink className="w-10 h-10 text-white mx-auto mb-2" />
+                    <span className="text-white text-sm font-semibold">Ver proyecto</span>
                   </div>
                 </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3 text-gray-500 text-sm">
-                    <Calendar className="w-4 h-4" />
-                    <span>{project.date}</span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-gray-300 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-gray-400 leading-relaxed mb-4">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center gap-1 text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700"
-                      >
-                        <Tag className="w-3 h-3" />
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                <div className="absolute top-4 left-4 bg-gray-900/85 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-700/70">
+                  {project.category}
                 </div>
-
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-700 via-white to-gray-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
               </div>
+
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-3 text-gray-500 text-xs">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{project.date}</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
+                <p className="text-gray-400 leading-relaxed text-sm mb-4">{project.description}</p>
+                <div className={`portfolio-tags-${i} flex flex-wrap gap-1.5`}>
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 text-xs bg-gray-800/70 text-gray-300 px-2.5 py-1 rounded-full border border-gray-700/60"
+                    >
+                      <Tag className="w-2.5 h-2.5" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${project.accent} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
             </a>
           ))}
         </div>
 
-        <div className="portfolio-cta text-center mt-16">
-          <p className="text-gray-400 text-lg mb-6">
-            ¿Tienes un proyecto en mente? Hagámoslo realidad juntos.
-          </p>
-          <a
-            href="#contacto"
-            className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-lg font-semibold transition-colors"
-          >
-            Comenzar mi proyecto
-            <ExternalLink className="w-5 h-5" />
-          </a>
+        <div className="portfolio-cta-block text-center mt-20">
+          <div className="inline-flex flex-col items-center gap-6 p-8 rounded-2xl border border-gray-800/50 bg-gray-900/20 backdrop-blur-sm">
+            <p className="text-gray-300 text-lg font-medium">
+              ¿Tienes un proyecto en mente? Hagámoslo realidad.
+            </p>
+            <a
+              href="#contacto"
+              className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-100 px-8 py-4 rounded-xl font-bold transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+            >
+              Comenzar mi proyecto
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -1,176 +1,253 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
+import { TextPlugin } from 'gsap/TextPlugin'
 import { useGSAP } from '@gsap/react'
-import { ArrowRight, Sparkles, MessageCircle, Mail } from 'lucide-react'
-import { Button } from './ui/button'
+import { Sparkles, ChevronDown } from 'lucide-react'
+import { SolarSystem } from './SolarSystem'
 
-gsap.registerPlugin(useGSAP)
+gsap.registerPlugin(useGSAP, TextPlugin)
 
-type Particle = { left: string; top: string; duration: number; delay: number }
+const TITLE = 'INSANITY'
+const SUBTITLE =
+  'Transformamos ideas en soluciones digitales extraordinarias. Tecnología de vanguardia para impulsar tu negocio al futuro.'
 
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const bgRef = useRef<HTMLDivElement>(null)
-  const orb1Ref = useRef<HTMLDivElement>(null)
-  const orb2Ref = useRef<HTMLDivElement>(null)
-  const [particles, setParticles] = useState<Particle[]>([])
+  const [astronautReady, setAstronautReady] = useState(false)
 
   useEffect(() => {
-    setParticles(
-      Array.from({ length: 30 }, () => ({
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        duration: Math.random() * 4 + 3,
-        delay: Math.random() * 2,
-      }))
-    )
+    const t = setTimeout(() => setAstronautReady(true), 4200)
+    return () => clearTimeout(t)
   }, [])
 
-  // Static entrance + loop animations
+  const sectionRef  = useRef<HTMLElement>(null)
+  const contentRef  = useRef<HTMLDivElement>(null)
+  const subtitleRef = useRef<HTMLParagraphElement>(null)
+  const orb1Ref     = useRef<HTMLDivElement>(null)
+  const orb2Ref     = useRef<HTMLDivElement>(null)
+  const orb3Ref     = useRef<HTMLDivElement>(null)
+  const galaxyRef   = useRef<HTMLDivElement>(null)
+  const scrollRef   = useRef<HTMLDivElement>(null)
+
+  // ── GSAP animations ──────────────────────────────────────────
   useGSAP(() => {
-    // Background scale pulse
-    gsap.fromTo(
-      bgRef.current,
-      { scale: 1.1 },
-      { scale: 1, duration: 20, repeat: -1, yoyo: true, ease: 'none' }
-    )
+    // Galaxy rings rotation
+    gsap.to('.galaxy-outer', { rotation: 360,  duration: 100, repeat: -1, ease: 'none', transformOrigin: '50% 50%' })
+    gsap.to('.galaxy-mid',   { rotation: -360, duration: 65,  repeat: -1, ease: 'none', transformOrigin: '50% 50%' })
+    gsap.to('.galaxy-inner-r',{ rotation: 360, duration: 40,  repeat: -1, ease: 'none', transformOrigin: '50% 50%' })
 
-    // Text entrance stagger
-    gsap.from(['.hero-badge', '.hero-title', '.hero-subtitle', '.hero-ctas', '.hero-contacts'], {
-      opacity: 0,
-      y: 20,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: 'power2.out',
-    })
+    // Ambient orb float
+    gsap.to(orb1Ref.current, { x: 80,  y: 55,  scale: 1.35, duration: 9,  repeat: -1, yoyo: true, ease: 'sine.inOut' })
+    gsap.to(orb2Ref.current, { x: -70, y: -45, scale: 1.45, duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut' })
+    gsap.to(orb3Ref.current, { x: 45,  y: -65, scale: 1.25, duration: 14, repeat: -1, yoyo: true, ease: 'sine.inOut' })
 
-    // Orb 1 floating
-    gsap.to(orb1Ref.current, {
-      x: 50, y: 30, scale: 1.2,
-      duration: 8, repeat: -1, yoyo: true, ease: 'sine.inOut',
-    })
+    // ── Entrance timeline (starts after BigBang at ~4.5s) ──
+    const tl = gsap.timeline({ delay: 4.5 })
 
-    // Orb 2 floating
-    gsap.to(orb2Ref.current, {
-      x: -50, y: -30, scale: 1.3,
-      duration: 10, repeat: -1, yoyo: true, ease: 'sine.inOut',
-    })
+    tl.from('.hero-badge', { opacity: 0, y: -30, scale: 0.65, duration: 0.7, ease: 'back.out(2.5)' })
+
+    tl.from('.hero-char', {
+      opacity: 0, y: 110,
+      rotationX: -90,
+      transformPerspective: 900,
+      transformOrigin: '50% 100%',
+      duration: 0.75,
+      stagger: { amount: 0.55, ease: 'power2.inOut' },
+      ease: 'back.out(1.4)',
+    }, '-=0.3')
+
+    // Subtitle typewriter
+    tl.set(subtitleRef.current, { opacity: 1 })
+    tl.to(subtitleRef.current, {
+      duration: 2.4,
+      text: { value: SUBTITLE, delimiter: '' },
+      ease: 'none',
+    }, '-=0.1')
+
+    // Scroll indicator
+    tl.from(scrollRef.current, { opacity: 0, y: 10, duration: 0.5 }, '-=0.2')
+    gsap.to(scrollRef.current, { y: 12, duration: 1.6, repeat: -1, yoyo: true, ease: 'sine.inOut' })
+
+    // Solar system fade in after BigBang
+    gsap.from('.hero-solar-wrap', { opacity: 0, duration: 1.5, delay: 4.5, ease: 'power2.out' })
   }, { scope: sectionRef })
 
-  // Particle animations — re-run when particles are generated
-  useGSAP(() => {
-    if (!particles.length) return
-    gsap.utils.toArray<HTMLElement>('.hero-particle').forEach((el, i) => {
-      const p = particles[i]
-      if (!p) return
-      gsap.fromTo(
-        el,
-        { y: 0, opacity: 0.2, scale: 0.5 },
-        {
-          y: -30, opacity: 1, scale: 1.2,
-          duration: p.duration,
-          repeat: -1, yoyo: true,
-          ease: 'sine.inOut',
-          delay: p.delay,
-        }
-      )
-    })
-  }, { scope: sectionRef, dependencies: [particles], revertOnUpdate: true })
-
-  const handleWhatsApp = () => {
-    window.open('https://wa.me/1234567890?text=Hola%20INSANITY,%20me%20gustaría%20más%20información', '_blank')
-  }
-
-  const handleEmail = () => {
-    window.location.href = 'mailto:contacto@insanity.com'
-  }
+  // ── Cursor parallax ──────────────────────────────────────────
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const onMove = (e: MouseEvent) => {
+      const r = section.getBoundingClientRect()
+      const dx = (e.clientX - r.width / 2) / (r.width / 2)
+      const dy = (e.clientY - r.height / 2) / (r.height / 2)
+      gsap.to(orb1Ref.current, { x: dx * 45,  y: dy * 35,  duration: 1.2, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to(orb2Ref.current, { x: dx * -60, y: dy * -45, duration: 1.5, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to(orb3Ref.current, { x: dx * 28,  y: dy * 55,  duration: 1.8, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to(galaxyRef.current,{ x: dx * 18, y: dy * 12,  duration: 2.0, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to('.hero-solar-wrap',{ x: dx * -10, y: dy * -8, duration: 2.5, ease: 'power2.out', overwrite: 'auto' })
+    }
+    section.addEventListener('mousemove', onMove)
+    return () => section.removeEventListener('mousemove', onMove)
+  }, [])
 
   return (
-    <section ref={sectionRef} className="relative h-[85vh] flex items-center justify-center overflow-hidden">
-      {/* Animated Background */}
-      <div
-        ref={bgRef}
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1639322537228-f710d846310a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMHRlY2hub2xvZ3klMjBuZXR3b3JrJTIwZGFya3xlbnwxfHx8fDE3NzU3MTE5NjR8MA&ixlib=rb-4.1.0&q=80&w=1080')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
-
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black z-0" />
-
-      {/* Floating Particles */}
-      <div className="absolute inset-0 z-0">
-        {particles.map((p, i) => (
-          <div
-            key={i}
-            className="hero-particle absolute w-2 h-2 bg-white rounded-full"
-            style={{ left: p.left, top: p.top, opacity: 0.2 }}
-          />
-        ))}
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black"
+    >
+      {/* ── Solar System (full background canvas) ── */}
+      <div className="hero-solar-wrap absolute inset-0 z-0 opacity-0">
+        <SolarSystem className="absolute inset-0" />
       </div>
 
-      {/* Grid Pattern */}
-      <div
-        className="absolute inset-0 z-0 opacity-10"
+      {/* ── Floating Astronaut — Sketchfab 3D model ── */}
+      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none" aria-hidden="true">
+        <iframe
+          title="Floating Astronaut"
+          src="https://sketchfab.com/models/848c04d21c274b4cba8954816f26dd8a/embed?autostart=1&ui_controls=0&ui_infos=0&ui_annotations=0&ui_watermark=0&ui_hint=0&preload=1&dnt=1&autospin=0.3&transparent=1"
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+          className="border-0"
+          style={{
+            width: '100%',
+            height: '100%',
+            transform: 'scale(0.9)',
+            transformOrigin: '50% 45%',
+          }}
+          loading="lazy"
+        />
+        {/* Loading cover — fades out once model is ready */}
+        <div
+          className="absolute inset-0 bg-black transition-opacity duration-1000 pointer-events-none"
+          style={{ opacity: astronautReady ? 0 : 1 }}
+        />
+      </div>
+
+      {/* ── Vignette — funde bordes ── */}
+      <div className="absolute inset-0 z-[2] pointer-events-none"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px',
+          background: `
+            radial-gradient(ellipse 55% 50% at 50% 50%, transparent 0%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0.90) 100%),
+            linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 18%, transparent 78%, rgba(0,0,0,0.90) 100%)
+          `,
         }}
       />
 
-      {/* Content */}
-      <div className="container mx-auto px-4 z-10 text-center">
-        <div className="hero-badge flex items-center justify-center gap-2 mb-6">
-          <Sparkles className="w-6 h-6 text-purple-400" />
-          <span className="text-purple-300 text-sm uppercase tracking-wider">Innovación sin límites</span>
+      {/* ── Galaxy ring decoration ── */}
+      <div
+        ref={galaxyRef}
+        className="absolute inset-0 z-[3] flex items-center justify-center pointer-events-none"
+        aria-hidden="true"
+      >
+        <div className="galaxy-outer absolute rounded-full"
+          style={{
+            width: '90vmin', height: '90vmin',
+            background: `conic-gradient(from 0deg,
+              transparent 0deg,
+              rgba(139,92,246,0.07) 55deg,
+              rgba(99,102,241,0.11) 120deg,
+              rgba(167,139,250,0.06) 185deg,
+              transparent 230deg,
+              rgba(103,232,249,0.04) 310deg,
+              transparent 360deg)`,
+            filter: 'blur(6px)',
+          }}
+        />
+        <div className="galaxy-mid absolute rounded-full"
+          style={{
+            width: '60vmin', height: '60vmin',
+            background: `conic-gradient(from 120deg,
+              transparent 0deg,
+              rgba(192,132,252,0.08) 70deg,
+              rgba(129,140,248,0.10) 150deg,
+              transparent 200deg,
+              rgba(216,180,254,0.05) 310deg,
+              transparent 360deg)`,
+            filter: 'blur(10px)',
+          }}
+        />
+        <div className="galaxy-inner-r absolute rounded-full"
+          style={{
+            width: '32vmin', height: '32vmin',
+            background: `conic-gradient(from 240deg,
+              transparent 0deg,
+              rgba(196,181,253,0.10) 90deg,
+              rgba(139,92,246,0.07) 160deg,
+              transparent 360deg)`,
+            filter: 'blur(14px)',
+          }}
+        />
+        {/* Core glow */}
+        <div className="absolute rounded-full"
+          style={{
+            width: '14vmin', height: '14vmin',
+            background: 'radial-gradient(circle, rgba(255,230,100,0.08) 0%, rgba(139,92,246,0.05) 60%, transparent 100%)',
+            filter: 'blur(16px)',
+          }}
+        />
+      </div>
+
+      {/* ── Gradient orbs ── */}
+      <div ref={orb1Ref} className="absolute top-1/4 left-[14%] w-[34rem] h-[34rem] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none z-[3]" />
+      <div ref={orb2Ref} className="absolute bottom-1/3 right-[11%] w-[38rem] h-[38rem] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none z-[3]" />
+      <div ref={orb3Ref} className="absolute top-[38%] right-[36%] w-72 h-72 bg-violet-400/10 rounded-full blur-[90px] pointer-events-none z-[3]" />
+
+      {/* ── Subtle grid overlay ── */}
+      <div className="absolute inset-0 z-[4] opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`,
+          backgroundSize: '64px 64px',
+        }}
+      />
+
+      {/* ── Content ── */}
+      <div ref={contentRef} className="container mx-auto px-6 z-10 text-center relative">
+        {/* Badge */}
+        <div className="hero-badge inline-flex items-center gap-2 mb-8 px-5 py-2 rounded-full border border-purple-500/30 bg-purple-950/30 backdrop-blur-md">
+          <Sparkles className="w-4 h-4 text-purple-400" />
+          <span className="text-purple-300 text-xs uppercase tracking-[0.28em] font-medium">
+            Innovación sin límites
+          </span>
         </div>
 
-        <h1 className="hero-title text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-gray-200 via-white to-gray-300 bg-clip-text text-transparent">
-          INSANITY
+        {/* Title — characters flip in 3D */}
+        <h1
+          className="font-black mb-8 leading-none"
+          style={{
+            fontSize: 'clamp(4.5rem, 16vw, 13rem)',
+            letterSpacing: '-0.04em',
+            textShadow: '0 0 80px rgba(139,92,246,0.35), 0 0 160px rgba(99,102,241,0.15)',
+          }}
+        >
+          {TITLE.split('').map((char, i) => (
+            <span
+              key={i}
+              className="hero-char inline-block bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent"
+            >
+              {char}
+            </span>
+          ))}
         </h1>
 
-        <p className="hero-subtitle text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-          Transformamos ideas en soluciones digitales extraordinarias.
-          Tecnología de vanguardia para impulsar tu negocio al futuro.
-        </p>
+        {/* Subtitle — typewriter */}
+        <p
+          ref={subtitleRef}
+          className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed opacity-0"
+          style={{ minHeight: '4rem', textShadow: '0 1px 20px rgba(0,0,0,0.8)' }}
+        />
 
-        <div className="hero-ctas flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <Button size="lg" className="bg-white text-black hover:bg-gray-200 px-8 py-6 text-lg font-semibold">
-            Comenzar ahora
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-          <Button size="lg" variant="outline" className="border-gray-400 text-gray-300 hover:bg-gray-900/30 px-8 py-6 text-lg">
-            Ver servicios
-          </Button>
-        </div>
 
-        <div className="hero-contacts flex flex-wrap items-center justify-center gap-4">
-          <button
-            onClick={handleWhatsApp}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-medium transition-colors shadow-lg shadow-green-900/50"
-          >
-            <MessageCircle className="w-5 h-5" />
-            WhatsApp
-          </button>
-          <button
-            onClick={handleEmail}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-medium transition-colors shadow-lg shadow-gray-900/50"
-          >
-            <Mail className="w-5 h-5" />
-            Email
-          </button>
-        </div>
       </div>
 
-      {/* Gradient Orbs */}
-      <div ref={orb1Ref} className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-600/30 rounded-full blur-3xl pointer-events-none" />
-      <div ref={orb2Ref} className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gray-600/20 rounded-full blur-3xl pointer-events-none" />
+      {/* ── Scroll indicator ── */}
+      <div
+        ref={scrollRef}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-gray-500"
+      >
+        <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
+        <ChevronDown className="w-4 h-4" />
+      </div>
     </section>
   )
 }
