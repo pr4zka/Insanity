@@ -9,14 +9,32 @@ gsap.registerPlugin(useGSAP)
 export function WhatsAppButton() {
   const btnRef = useRef<HTMLButtonElement>(null)
 
-  useGSAP(() => {
-    gsap.from(btnRef.current, {
-      scale: 0,
-      opacity: 0,
+  const { contextSafe } = useGSAP(() => {
+    // Set invisible immediately, then animate in after 1s
+    gsap.set(btnRef.current, { scale: 0, opacity: 0 })
+    gsap.to(btnRef.current, {
+      scale: 1,
+      opacity: 1,
       duration: 0.6,
       delay: 1,
       ease: 'back.out(2)',
     })
+  })
+
+  const onMouseEnter = contextSafe(() => {
+    gsap.to(btnRef.current, { scale: 1.1, duration: 0.2, ease: 'power2.out' })
+  })
+
+  const onMouseLeave = contextSafe(() => {
+    gsap.to(btnRef.current, { scale: 1, duration: 0.2, ease: 'power2.out' })
+  })
+
+  const onMouseDown = contextSafe(() => {
+    gsap.to(btnRef.current, { scale: 0.95, duration: 0.1, ease: 'power2.out' })
+  })
+
+  const onMouseUp = contextSafe(() => {
+    gsap.to(btnRef.current, { scale: 1.1, duration: 0.1, ease: 'power2.out' })
   })
 
   const handleClick = () => {
@@ -30,8 +48,12 @@ export function WhatsAppButton() {
     <button
       ref={btnRef}
       onClick={handleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
       aria-label="Contactar por WhatsApp"
-      className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 bg-green-500 hover:bg-green-400 rounded-full shadow-lg shadow-green-900/50 cursor-pointer hover:scale-110 transition-transform duration-200"
+      className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 bg-green-500 hover:bg-green-400 rounded-full shadow-lg shadow-green-900/50 cursor-pointer"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

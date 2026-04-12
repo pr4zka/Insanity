@@ -63,7 +63,7 @@ export function Services() {
 
   useGSAP(() => {
     // Initial state
-    gsap.set('.service-card', { opacity: 0, y: 50, clipPath: 'inset(0 0 100% 0 round 16px)' })
+    gsap.set('.service-card', { opacity: 0, y: 50, clipPath: 'inset(0 0 100% 0 round 12px)' })
 
     const tl = gsap.timeline({ paused: true })
 
@@ -73,7 +73,7 @@ export function Services() {
 
     tl.to('.service-card', {
       opacity: 1, y: 0,
-      clipPath: 'inset(0 0 0% 0 round 16px)',
+      clipPath: 'inset(0 0 0% 0 round 12px)',
       duration: 0.85, stagger: 0.13, ease: 'power3.out',
     }, '-=0.2')
 
@@ -122,33 +122,52 @@ export function Services() {
     <section
       ref={sectionRef}
       id="servicios"
-      className="min-h-screen flex flex-col justify-center py-16 md:py-28 px-4 bg-black relative overflow-hidden"
+      className="h-screen flex flex-col justify-center pt-20 pb-4 lg:pt-24 lg:pb-8 px-4 bg-black relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/12 via-black to-black" />
       <div className="sv-orb-left absolute top-0 left-1/4 w-[28rem] h-[28rem] bg-purple-600/12 rounded-full blur-[100px] pointer-events-none" />
       <div className="sv-orb-right absolute bottom-0 right-1/4 w-[28rem] h-[28rem] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
-        <div className="services-header text-center mb-10 md:mb-20">
-          <div className="services-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-950/25 text-purple-400 text-xs uppercase tracking-[0.25em]">
+        {/* Header */}
+        <div className="services-header text-center mb-3 lg:mb-6">
+          <div className="services-tag inline-flex items-center gap-2 mb-2 px-4 py-1 rounded-full border border-purple-500/30 bg-purple-950/25 text-purple-400 text-xs uppercase tracking-[0.25em]">
             Lo que ofrecemos
           </div>
-          <h2 className="services-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
+          <h2 className="services-title text-2xl md:text-3xl lg:text-4xl font-black mb-1 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             Nuestros Servicios
           </h2>
-          <p className="services-desc text-base md:text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="services-desc text-xs lg:text-sm text-gray-400 max-w-xl mx-auto">
             Soluciones tecnológicas completas para llevar tu negocio al siguiente nivel
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service) => (
-            <div key={service.title} className="service-card">
+        {/*
+          Grid responsive:
+          Mobile  (grid-cols-6): col-span-3 → 2 por fila  → filas: [0,1] [2,3] [4 full-width]
+          Desktop (lg):          col-span-2 → 3 por fila  → fila 1: [0,1,2]  fila 2: centrados [3,4]
+          La 5ª card usa col-span-6 en mobile (ancho completo) y col-start-4 en lg (centrada).
+        */}
+        <div className="grid grid-cols-6 gap-3 lg:gap-4">
+          {services.map((service, idx) => (
+            <div
+              key={service.title}
+              className={[
+                'service-card',
+                // Mobile: 2 per row (col-span-3). Last card: full-width (col-span-6).
+                // Desktop: 3 per row (col-span-2), last two centered.
+                idx === 4
+                  ? 'col-span-6 lg:col-span-2 lg:col-start-4'
+                  : 'col-span-3 lg:col-span-2',
+                idx === 3 ? 'lg:col-start-2' : '',
+              ].join(' ')}
+            >
               <div
-                className="service-card-inner relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-gray-700/70 transition-colors duration-300 group"
+                className="service-card-inner relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 rounded-xl overflow-hidden hover:border-gray-700/70 transition-colors duration-300 group h-full"
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <div className="relative h-36 sm:h-44 md:h-52 overflow-hidden">
+                {/* Image — smaller on mobile to save vertical space */}
+                <div className="relative h-20 lg:h-28 overflow-hidden">
                   <ImageWithFallback
                     src={service.image}
                     alt={service.title}
@@ -156,18 +175,18 @@ export function Services() {
                   />
                   <div className={`absolute inset-0 bg-gradient-to-t ${service.gradient} opacity-55`} />
                   {service.comingSoon && (
-                    <div className="absolute top-4 right-4 bg-gray-900/85 backdrop-blur-sm text-gray-300 text-xs font-medium px-3 py-1 rounded-full border border-gray-700/70">
+                    <div className="absolute top-2 right-2 bg-gray-900/85 backdrop-blur-sm text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full border border-gray-700/70">
                       Próximamente
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 sm:p-5 md:p-7">
-                  <div className={`service-icon inline-flex p-3 rounded-xl bg-gradient-to-br ${service.accent} mb-5 shadow-lg`}>
-                    <service.icon className="w-6 h-6 text-white" />
+                <div className="p-3 lg:p-4">
+                  <div className={`service-icon inline-flex p-2 lg:p-2.5 rounded-lg bg-gradient-to-br ${service.accent} mb-2 lg:mb-3 shadow-lg`}>
+                    <service.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
-                  <p className="text-gray-400 leading-relaxed text-sm">{service.description}</p>
+                  <h3 className="text-xs lg:text-base font-bold text-white mb-1">{service.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-[10px] lg:text-xs line-clamp-2 lg:line-clamp-none">{service.description}</p>
                 </div>
 
                 <div

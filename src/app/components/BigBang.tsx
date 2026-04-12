@@ -51,7 +51,7 @@ export function BigBang() {
     const bgStars: { x: number; y: number; r: number; alpha: number; phase: number }[] = []
 
     // Pre-build background stars (they appear as universe "cools")
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 150; i++) {
       bgStars.push({
         x: Math.random() * W,
         y: Math.random() * H,
@@ -76,7 +76,7 @@ export function BigBang() {
 
     // ── Spawn explosion ──────────────────────────────────────
     const explode = () => {
-      const count = 900
+      const count = 450
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2
         const speed = Math.pow(Math.random(), 0.4) * 22 + 1.5

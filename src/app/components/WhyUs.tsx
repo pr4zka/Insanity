@@ -44,6 +44,8 @@ export function WhyUs() {
   const hasPlayed  = useRef(false)
   const { activeIndex } = useSectionContext()
 
+  const orbsStarted = useRef(false)
+
   useGSAP(() => {
     const tl = gsap.timeline({ paused: true })
 
@@ -67,16 +69,20 @@ export function WhyUs() {
     })
 
     tlRef.current = tl
-
-    // Ambient orb float
-    gsap.to('.whyus-orb-l', { y: -30, duration: 8,  repeat: -1, yoyo: true, ease: 'sine.inOut' })
-    gsap.to('.whyus-orb-r', { y:  30, duration: 10, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2 })
   }, { scope: sectionRef })
 
   useEffect(() => {
-    if (activeIndex === SECTION_INDEX && !hasPlayed.current) {
-      hasPlayed.current = true
-      setTimeout(() => tlRef.current?.play(), 400)
+    if (activeIndex === SECTION_INDEX) {
+      if (!hasPlayed.current) {
+        hasPlayed.current = true
+        setTimeout(() => tlRef.current?.play(), 400)
+      }
+      // Start ambient orb float only once, when section first becomes visible
+      if (!orbsStarted.current) {
+        orbsStarted.current = true
+        gsap.to('.whyus-orb-l', { y: -30, duration: 8,  repeat: -1, yoyo: true, ease: 'sine.inOut' })
+        gsap.to('.whyus-orb-r', { y:  30, duration: 10, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2 })
+      }
     }
   }, [activeIndex])
 
@@ -105,7 +111,7 @@ export function WhyUs() {
     <section
       ref={sectionRef}
       id="nosotros"
-      className="min-h-screen flex flex-col justify-center py-16 md:py-28 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
+      className="h-screen flex flex-col justify-center pt-20 pb-6 lg:pt-24 lg:pb-10 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
     >
       <div ref={bgTextRef} className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0" aria-hidden="true">
         <span className="text-[14vw] md:text-[22vw] font-black text-white/[0.025] leading-none tracking-tighter whitespace-nowrap">
@@ -117,33 +123,34 @@ export function WhyUs() {
       <div className="whyus-orb-r absolute bottom-1/4 right-0 w-96 h-96 bg-gray-800/15 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
-        <div className="whyus-header text-center mb-10 md:mb-20">
-          <div className="whyus-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-gray-700/50 bg-gray-900/40 text-gray-400 text-xs uppercase tracking-[0.25em]">
+        <div className="whyus-header text-center mb-3 lg:mb-6">
+          <div className="whyus-tag inline-flex items-center gap-2 mb-2 lg:mb-3 px-3 py-1 lg:px-4 lg:py-1.5 rounded-full border border-gray-700/50 bg-gray-900/40 text-gray-400 text-[10px] lg:text-xs uppercase tracking-[0.25em]">
             Nuestra diferencia
           </div>
-          <h2 className="whyus-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
+          <h2 className="whyus-title text-xl lg:text-3xl xl:text-4xl font-black mb-1 lg:mb-2 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             ¿Por qué elegir INSANITY?
           </h2>
-          <p className="whyus-desc text-base md:text-xl text-gray-400 max-w-3xl mx-auto">
+          <p className="whyus-desc text-[10px] lg:text-sm text-gray-400 max-w-2xl mx-auto">
             Combinamos experiencia, tecnología de punta y un compromiso inquebrantable con la excelencia.
           </p>
         </div>
 
-        <div className="whyus-divider w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent mb-16" />
+        <div className="whyus-divider w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent mb-3 lg:mb-6" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Mobile: 2 cols — Desktop: 4 cols */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {features.map((feature, i) => (
             <div key={feature.title} className={`whyus-card-${i}`}>
               <div
-                className="whyus-card-inner h-full bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 rounded-2xl p-7 hover:border-gray-700/70 transition-colors duration-300 group"
+                className="whyus-card-inner h-full bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 rounded-xl p-3 lg:p-5 hover:border-gray-700/70 transition-colors duration-300 group"
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <div className={`whyus-icon-${i} inline-flex p-3.5 rounded-xl bg-gradient-to-br ${feature.accent} mb-5 shadow-lg`}>
-                  <feature.icon className="w-6 h-6 text-white" />
+                <div className={`whyus-icon-${i} inline-flex p-2 lg:p-3 rounded-md lg:rounded-lg bg-gradient-to-br ${feature.accent} mb-2 lg:mb-4 shadow-lg`}>
+                  <feature.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 leading-snug">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">{feature.description}</p>
-                <div className={`mt-6 h-0.5 w-12 bg-gradient-to-r ${feature.accent} rounded-full transition-all duration-500 group-hover:w-full`} />
+                <h3 className="text-xs lg:text-base font-bold text-white mb-1 lg:mb-2 leading-snug">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed text-[10px] lg:text-xs">{feature.description}</p>
+                <div className={`mt-2 lg:mt-4 h-0.5 w-8 lg:w-10 bg-gradient-to-r ${feature.accent} rounded-full transition-all duration-500 group-hover:w-full`} />
               </div>
             </div>
           ))}

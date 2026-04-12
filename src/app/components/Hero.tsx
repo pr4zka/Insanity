@@ -14,6 +14,9 @@ const SUBTITLE =
   'Transformamos ideas en soluciones digitales extraordinarias. Tecnología de vanguardia para impulsar tu negocio al futuro.'
 
 export function Hero() {
+  // Mount the Sketchfab iframe only after BigBang finishes (~4s) so it doesn't
+  // compete with the canvas animation for GPU/network resources at startup.
+  const [iframeReady, setIframeReady] = useState(false)
   const [astronautReady, setAstronautReady] = useState(false)
 
   const sectionRef    = useRef<HTMLElement>(null)
@@ -30,24 +33,9 @@ export function Hero() {
 
   // Loading state — onLoad + 1500ms delay + 8s fallback
   useEffect(() => {
-    let onLoadTimer: ReturnType<typeof setTimeout> | null = null
-    const maxFallback = setTimeout(() => {
-      if (!loadFiredRef.current) { loadFiredRef.current = true; setAstronautReady(true) }
-    }, 8000)
-
-    const handleLoad = () => {
-      onLoadTimer = setTimeout(() => {
-        if (!loadFiredRef.current) { loadFiredRef.current = true; setAstronautReady(true) }
-      }, 1500)
-    }
-
-    const iframe = iframeRef.current
-    if (iframe) iframe.addEventListener('load', handleLoad)
-    return () => {
-      clearTimeout(maxFallback)
-      if (onLoadTimer) clearTimeout(onLoadTimer)
-      if (iframe) iframe.removeEventListener('load', handleLoad)
-    }
+    const tMount = setTimeout(() => setIframeReady(true), 3800)
+    const tShow  = setTimeout(() => setAstronautReady(true), 5200)
+    return () => { clearTimeout(tMount); clearTimeout(tShow) }
   }, [])
 
   // GSAP entrance animation when astronaut is ready
@@ -72,8 +60,8 @@ export function Hero() {
     gsap.to(orb2Ref.current, { x: -70, y: -45, scale: 1.45, duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut' })
     gsap.to(orb3Ref.current, { x: 45,  y: -65, scale: 1.25, duration: 14, repeat: -1, yoyo: true, ease: 'sine.inOut' })
 
-    // ── Entrance timeline (starts after BigBang at ~4.5s) ──
-    const tl = gsap.timeline({ delay: 4.5 })
+    // ── Entrance timeline (starts after BigBang at ~3.8s) ──
+    const tl = gsap.timeline({ delay: 3.8 })
 
     tl.from('.hero-badge', { opacity: 0, y: -30, scale: 0.65, duration: 0.7, ease: 'back.out(2.5)' })
 
@@ -100,7 +88,7 @@ export function Hero() {
     gsap.to(scrollRef.current, { y: 12, duration: 1.6, repeat: -1, yoyo: true, ease: 'sine.inOut' })
 
     // Solar system fade in after BigBang
-    gsap.from('.hero-solar-wrap', { opacity: 0, duration: 1.5, delay: 4.5, ease: 'power2.out' })
+    gsap.from('.hero-solar-wrap', { opacity: 0, duration: 1.5, delay: 3.8, ease: 'power2.out' })
   }, { scope: sectionRef })
 
   // ── Cursor parallax ──────────────────────────────────────────
@@ -133,30 +121,22 @@ export function Hero() {
       </div>
 
       {/* ── Floating Astronaut — Sketchfab 3D model ── */}
-      <div
-        ref={astronautRef}
-        className="absolute inset-0 z-[1] overflow-hidden pointer-events-none"
-        style={{ opacity: 0 }}
-      >
-        <iframe
-          ref={iframeRef}
-          title="Floating Astronaut"
-          src="https://sketchfab.com/models/848c04d21c274b4cba8954816f26dd8a/embed?autostart=1&ui_controls=0&ui_infos=0&ui_annotations=0&ui_watermark=0&ui_hint=0&preload=1&dnt=1&autospin=0.3&transparent=1"
-          allow="autoplay; fullscreen; xr-spatial-tracking"
-          className="border-0 pointer-events-auto"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: '-100px',  /* extiende 100px → overflow:hidden oculta la barra */
-            width: '100%',
-            height: 'calc(100% + 100px)',
-            transform: 'scale(1.35)',
-            transformOrigin: '50% 48%',
-          }}
-          loading="lazy"
-        />
+      {/* Deferred: iframe not mounted until after BigBang to avoid competing for GPU */}
+      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none" aria-hidden="true">
+        {iframeReady && (
+          <iframe
+            title="Floating Astronaut"
+            src="https://sketchfab.com/models/848c04d21c274b4cba8954816f26dd8a/embed?autostart=1&ui_controls=0&ui_infos=0&ui_annotations=0&ui_watermark=0&ui_hint=0&preload=1&dnt=1&autospin=0.3&transparent=1"
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            className="border-0"
+            style={{
+              width: '100%',
+              height: '100%',
+              transform: 'scale(0.9)',
+              transformOrigin: '50% 45%',
+            }}
+          />
+        )}
         {/* Loading cover — fades out once model is ready */}
         <div
           aria-hidden="true"
