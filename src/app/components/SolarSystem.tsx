@@ -279,12 +279,13 @@ export function SolarSystem({ className = '' }: { className?: string }) {
 
     // Planets get individual angle refs so they start spread out
     const angles = PLANETS.map((p) => p.angle0)
+    const planetData = PLANETS.map((p, i) => ({ p, x: 0, y: 0, angle: angles[i] }))
 
     let t = 0
     let frameCount = 0
     const SUN_R = 28
 
-    const tick = () => {
+    const tick = (_time: number, deltaTime: number) => {
       // Throttle to ~30fps — SolarSystem is a background element
       frameCount++
       if (frameCount % 2 !== 0) return
