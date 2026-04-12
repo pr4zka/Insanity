@@ -18,7 +18,7 @@ export function SectionDots() {
   return (
     <div
       ref={wrapRef}
-      className="fixed right-5 top-1/2 -translate-y-1/2 z-[9990] flex flex-col gap-3 items-end opacity-0"
+      className="fixed right-5 top-1/2 -translate-y-1/2 z-[9990] hidden md:flex flex-col gap-3 items-end opacity-0"
       aria-label="Navegación de secciones"
     >
       {Array.from({ length: total }).map((_, i) => (

@@ -28,7 +28,7 @@ export function CursorEffect() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { desynchronized: true })
     if (!ctx) return
 
     const setSize = () => {
@@ -181,7 +181,7 @@ export function CursorEffect() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 9998 }}
+      style={{ zIndex: 9998, willChange: 'transform' }}
       aria-hidden="true"
     />
   )

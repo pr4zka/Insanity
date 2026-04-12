@@ -159,20 +159,20 @@ export function Portfolio() {
     <section
       ref={sectionRef}
       id="portfolio"
-      className="min-h-screen flex flex-col justify-center py-28 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
+      className="min-h-screen flex flex-col justify-center py-16 md:py-28 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
     >
       <div className="portfolio-orb-tr absolute top-0 right-1/3 w-[28rem] h-[28rem] bg-purple-900/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="portfolio-orb-bl absolute bottom-0 left-1/3 w-[28rem] h-[28rem] bg-gray-800/15 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
-        <div className="portfolio-header text-center mb-20">
+        <div className="portfolio-header text-center mb-10 md:mb-20">
           <div className="portfolio-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-gray-700/50 bg-gray-900/40 text-gray-400 text-xs uppercase tracking-[0.25em]">
             Nuestro trabajo
           </div>
-          <h2 className="portfolio-title text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
+          <h2 className="portfolio-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             Proyectos Destacados
           </h2>
-          <p className="portfolio-desc text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="portfolio-desc text-base md:text-xl text-gray-400 max-w-2xl mx-auto">
             Descubre algunos de nuestros trabajos más recientes y exitosos
           </p>
         </div>
@@ -186,7 +186,7 @@ export function Portfolio() {
               rel="noopener noreferrer"
               className={`portfolio-card-${i} portfolio-card-hover relative block rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 hover:border-gray-700/70 transition-colors duration-300 group`}
             >
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
                 <ImageWithFallback
                   src={project.image}
                   alt={project.title}
@@ -229,7 +229,7 @@ export function Portfolio() {
         </div>
 
         <div className="portfolio-cta-block text-center mt-20">
-          <div className="inline-flex flex-col items-center gap-6 p-8 rounded-2xl border border-gray-800/50 bg-gray-900/20 backdrop-blur-sm">
+          <div className="inline-flex flex-col items-center gap-6 p-5 sm:p-8 rounded-2xl border border-gray-800/50 bg-gray-900/20 backdrop-blur-sm">
             <p className="text-gray-300 text-lg font-medium">
               ¿Tienes un proyecto en mente? Hagámoslo realidad.
             </p>

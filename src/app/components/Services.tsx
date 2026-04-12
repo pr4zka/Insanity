@@ -122,21 +122,21 @@ export function Services() {
     <section
       ref={sectionRef}
       id="servicios"
-      className="min-h-screen flex flex-col justify-center py-28 px-4 bg-black relative overflow-hidden"
+      className="min-h-screen flex flex-col justify-center py-16 md:py-28 px-4 bg-black relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/12 via-black to-black" />
       <div className="sv-orb-left absolute top-0 left-1/4 w-[28rem] h-[28rem] bg-purple-600/12 rounded-full blur-[100px] pointer-events-none" />
       <div className="sv-orb-right absolute bottom-0 right-1/4 w-[28rem] h-[28rem] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
-        <div className="services-header text-center mb-20">
+        <div className="services-header text-center mb-10 md:mb-20">
           <div className="services-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-950/25 text-purple-400 text-xs uppercase tracking-[0.25em]">
             Lo que ofrecemos
           </div>
-          <h2 className="services-title text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
+          <h2 className="services-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             Nuestros Servicios
           </h2>
-          <p className="services-desc text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="services-desc text-base md:text-xl text-gray-400 max-w-2xl mx-auto">
             Soluciones tecnológicas completas para llevar tu negocio al siguiente nivel
           </p>
         </div>
@@ -148,7 +148,7 @@ export function Services() {
                 className="service-card-inner relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-gray-700/70 transition-colors duration-300 group"
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <div className="relative h-52 overflow-hidden">
+                <div className="relative h-36 sm:h-44 md:h-52 overflow-hidden">
                   <ImageWithFallback
                     src={service.image}
                     alt={service.title}
@@ -162,7 +162,7 @@ export function Services() {
                   )}
                 </div>
 
-                <div className="p-7">
+                <div className="p-4 sm:p-5 md:p-7">
                   <div className={`service-icon inline-flex p-3 rounded-xl bg-gradient-to-br ${service.accent} mb-5 shadow-lg`}>
                     <service.icon className="w-6 h-6 text-white" />
                   </div>

@@ -105,10 +105,10 @@ export function WhyUs() {
     <section
       ref={sectionRef}
       id="nosotros"
-      className="min-h-screen flex flex-col justify-center py-28 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
+      className="min-h-screen flex flex-col justify-center py-16 md:py-28 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
     >
       <div ref={bgTextRef} className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0" aria-hidden="true">
-        <span className="text-[22vw] font-black text-white/[0.025] leading-none tracking-tighter whitespace-nowrap">
+        <span className="text-[14vw] md:text-[22vw] font-black text-white/[0.025] leading-none tracking-tighter whitespace-nowrap">
           WHY US
         </span>
       </div>
@@ -117,14 +117,14 @@ export function WhyUs() {
       <div className="whyus-orb-r absolute bottom-1/4 right-0 w-96 h-96 bg-gray-800/15 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
-        <div className="whyus-header text-center mb-20">
+        <div className="whyus-header text-center mb-10 md:mb-20">
           <div className="whyus-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-gray-700/50 bg-gray-900/40 text-gray-400 text-xs uppercase tracking-[0.25em]">
             Nuestra diferencia
           </div>
-          <h2 className="whyus-title text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
+          <h2 className="whyus-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             ¿Por qué elegir INSANITY?
           </h2>
-          <p className="whyus-desc text-xl text-gray-400 max-w-3xl mx-auto">
+          <p className="whyus-desc text-base md:text-xl text-gray-400 max-w-3xl mx-auto">
             Combinamos experiencia, tecnología de punta y un compromiso inquebrantable con la excelencia.
           </p>
         </div>

@@ -90,28 +90,28 @@ export function Contact() {
     <section
       ref={sectionRef}
       id="contacto"
-      className="min-h-screen flex flex-col justify-center py-28 px-4 bg-black relative overflow-hidden"
+      className="min-h-screen flex flex-col justify-center py-16 md:py-28 px-4 bg-black relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-t from-purple-900/15 via-black to-black" />
       <div className="contact-orb absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/8 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10 max-w-6xl">
-        <div className="contact-header text-center mb-20">
+        <div className="contact-header text-center mb-10 md:mb-20">
           <div className="contact-tag inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-950/25 text-purple-400 text-xs uppercase tracking-[0.25em]">
             Hablemos
           </div>
-          <h2 className="contact-title text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
+          <h2 className="contact-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent leading-tight">
             ¿Listo para comenzar?
           </h2>
-          <p className="contact-desc text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="contact-desc text-base md:text-xl text-gray-400 max-w-2xl mx-auto">
             Contáctanos y descubre cómo podemos transformar tu negocio
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <div className="contact-info space-y-8">
             <div>
-              <h3 className="text-3xl font-bold text-white mb-4">Hablemos de tu proyecto</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Hablemos de tu proyecto</h3>
               <p className="text-gray-400 text-base leading-relaxed">
                 Nuestro equipo está listo para ayudarte a hacer realidad tus ideas.
                 No importa qué tan ambicioso sea tu proyecto, estamos preparados para el desafío.
@@ -145,7 +145,7 @@ export function Contact() {
             </div>
           </div>
 
-          <form className="contact-form space-y-5 bg-gradient-to-br from-gray-900/60 to-gray-950/60 border border-gray-800/50 rounded-2xl p-8 backdrop-blur-sm">
+          <form className="contact-form space-y-5 bg-gradient-to-br from-gray-900/60 to-gray-950/60 border border-gray-800/50 rounded-2xl p-5 sm:p-8 backdrop-blur-sm">
             <div className="contact-name-wrapper">
               <label htmlFor="name" className="block text-white text-sm mb-2 font-medium">Nombre</label>
               <Input id="name" type="text" placeholder="Tu nombre completo" className="bg-black/50 border-gray-700/70 text-white placeholder:text-gray-600 focus:border-purple-500/70 focus:ring-0 transition-colors" />
