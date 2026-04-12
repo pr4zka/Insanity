@@ -263,7 +263,7 @@ export function SolarSystem({ className = '' }: { className?: string }) {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { desynchronized: true })
     if (!ctx) return
 
     const setSize = () => {
@@ -292,7 +292,8 @@ export function SolarSystem({ className = '' }: { className?: string }) {
       const H = canvas.height
       if (!W || !H) return
 
-      t += 0.016
+      const dt = deltaTime * 0.001  // accurate delta — works at any fps
+      t += dt
 
       // Solar system center (slightly right & down for visual balance)
       const cx = W * 0.5
@@ -308,30 +309,26 @@ export function SolarSystem({ className = '' }: { className?: string }) {
       drawOrbitRing(ctx, cx, cy, 322, 0.04) // asteroid belt inner
       drawOrbitRing(ctx, cx, cy, 360, 0.04) // asteroid belt outer
 
-      // ── Compute planet positions ──────────────────────────
-      const planetData = PLANETS.map((p, i) => {
-        angles[i] += p.speed * 0.016
-        const angle = angles[i]
-        return {
-          p,
-          angle,
-          x: cx + Math.cos(angle) * p.orbit,
-          y: cy + Math.sin(angle) * p.orbit * PERSPECTIVE,
-        }
-      })
+      // ── Compute planet positions (reuse pre-allocated array) ─
+      for (let i = 0; i < PLANETS.length; i++) {
+        angles[i] += PLANETS[i].speed * dt
+        planetData[i].angle = angles[i]
+        planetData[i].x = cx + Math.cos(angles[i]) * PLANETS[i].orbit
+        planetData[i].y = cy + Math.sin(angles[i]) * PLANETS[i].orbit * PERSPECTIVE
+      }
 
-      // ── Sort: back planets first (y < cy), then front ────
-      const sorted = [...planetData].sort((a, b) => a.y - b.y)
+      // ── Sort in-place: back planets first (y < cy), then front ─
+      planetData.sort((a, b) => a.y - b.y)
 
       // ── Draw far-side (y < cy) items ─────────────────────
-      for (const { p, x, y } of sorted) {
+      for (const { p, x, y } of planetData) {
         if (y < cy) drawPlanet(ctx, x, y, p, t)
       }
 
       // ── Asteroids (back half) ─────────────────────────────
       ctx.fillStyle = 'rgba(200,190,180,0.65)'
       for (const a of asteroids) {
-        a.angle += a.speed * 0.016
+        a.angle += a.speed * dt
         const ax = cx + Math.cos(a.angle) * a.orbitR
         const ay = cy + Math.sin(a.angle) * a.orbitR * PERSPECTIVE
         if (ay < cy) {
@@ -361,7 +358,7 @@ export function SolarSystem({ className = '' }: { className?: string }) {
       ctx.globalAlpha = 1
 
       // ── Draw near-side (y >= cy) planets ─────────────────
-      for (const { p, x, y } of sorted) {
+      for (const { p, x, y } of planetData) {
         if (y >= cy) drawPlanet(ctx, x, y, p, t)
       }
     }

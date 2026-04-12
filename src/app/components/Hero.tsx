@@ -19,20 +19,34 @@ export function Hero() {
   const [iframeReady, setIframeReady] = useState(false)
   const [astronautReady, setAstronautReady] = useState(false)
 
+  const sectionRef    = useRef<HTMLElement>(null)
+  const contentRef    = useRef<HTMLDivElement>(null)
+  const subtitleRef   = useRef<HTMLParagraphElement>(null)
+  const orb1Ref       = useRef<HTMLDivElement>(null)
+  const orb2Ref       = useRef<HTMLDivElement>(null)
+  const orb3Ref       = useRef<HTMLDivElement>(null)
+  const galaxyRef     = useRef<HTMLDivElement>(null)
+  const scrollRef     = useRef<HTMLDivElement>(null)
+  const astronautRef  = useRef<HTMLDivElement>(null)
+  const iframeRef     = useRef<HTMLIFrameElement>(null)
+  const loadFiredRef  = useRef(false)
+
+  // Loading state — onLoad + 1500ms delay + 8s fallback
   useEffect(() => {
     const tMount = setTimeout(() => setIframeReady(true), 3800)
     const tShow  = setTimeout(() => setAstronautReady(true), 5200)
     return () => { clearTimeout(tMount); clearTimeout(tShow) }
   }, [])
 
-  const sectionRef  = useRef<HTMLElement>(null)
-  const contentRef  = useRef<HTMLDivElement>(null)
-  const subtitleRef = useRef<HTMLParagraphElement>(null)
-  const orb1Ref     = useRef<HTMLDivElement>(null)
-  const orb2Ref     = useRef<HTMLDivElement>(null)
-  const orb3Ref     = useRef<HTMLDivElement>(null)
-  const galaxyRef   = useRef<HTMLDivElement>(null)
-  const scrollRef   = useRef<HTMLDivElement>(null)
+  // GSAP entrance animation when astronaut is ready
+  useEffect(() => {
+    if (!astronautReady || !astronautRef.current) return
+    gsap.fromTo(
+      astronautRef.current,
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out' }
+    )
+  }, [astronautReady])
 
   // ── GSAP animations ──────────────────────────────────────────
   useGSAP(() => {
@@ -90,6 +104,7 @@ export function Hero() {
       gsap.to(orb3Ref.current, { x: dx * 28,  y: dy * 55,  duration: 1.8, ease: 'power2.out', overwrite: 'auto' })
       gsap.to(galaxyRef.current,{ x: dx * 18, y: dy * 12,  duration: 2.0, ease: 'power2.out', overwrite: 'auto' })
       gsap.to('.hero-solar-wrap',{ x: dx * -10, y: dy * -8, duration: 2.5, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to(astronautRef.current, { x: dx * 15, y: dy * 10, duration: 2.0, ease: 'power2.out', overwrite: 'auto' })
     }
     section.addEventListener('mousemove', onMove)
     return () => section.removeEventListener('mousemove', onMove)
@@ -124,6 +139,7 @@ export function Hero() {
         )}
         {/* Loading cover — fades out once model is ready */}
         <div
+          aria-hidden="true"
           className="absolute inset-0 bg-black transition-opacity duration-1000 pointer-events-none"
           style={{ opacity: astronautReady ? 0 : 1 }}
         />
@@ -133,8 +149,8 @@ export function Hero() {
       <div className="absolute inset-0 z-[2] pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse 55% 50% at 50% 50%, transparent 0%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0.90) 100%),
-            linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 18%, transparent 78%, rgba(0,0,0,0.90) 100%)
+            radial-gradient(ellipse 70% 65% at 50% 52%, transparent 0%, rgba(0,0,0,0.10) 55%, rgba(0,0,0,0.85) 100%),
+            linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, transparent 14%, transparent 80%, rgba(0,0,0,0.85) 100%)
           `,
         }}
       />
@@ -194,9 +210,9 @@ export function Hero() {
       </div>
 
       {/* ── Gradient orbs ── */}
-      <div ref={orb1Ref} className="absolute top-1/4 left-[14%] w-[34rem] h-[34rem] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none z-[3]" />
-      <div ref={orb2Ref} className="absolute bottom-1/3 right-[11%] w-[38rem] h-[38rem] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none z-[3]" />
-      <div ref={orb3Ref} className="absolute top-[38%] right-[36%] w-72 h-72 bg-violet-400/10 rounded-full blur-[90px] pointer-events-none z-[3]" />
+      <div ref={orb1Ref} className="absolute top-1/4 left-[14%] w-[18rem] md:w-[34rem] h-[18rem] md:h-[34rem] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none z-[3]" />
+      <div ref={orb2Ref} className="absolute bottom-1/3 right-[11%] w-[20rem] md:w-[38rem] h-[20rem] md:h-[38rem] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none z-[3]" />
+      <div ref={orb3Ref} className="absolute top-[38%] right-[36%] w-48 md:w-72 h-48 md:h-72 bg-violet-400/10 rounded-full blur-[90px] pointer-events-none z-[3]" />
 
       {/* ── Subtle grid overlay ── */}
       <div className="absolute inset-0 z-[4] opacity-[0.04] pointer-events-none"

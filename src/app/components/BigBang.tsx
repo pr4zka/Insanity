@@ -34,8 +34,11 @@ export function BigBang() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { desynchronized: true })
     if (!ctx) return
+
+    // Disable lag smoothing so 120Hz monitors get accurate delta times
+    gsap.ticker.lagSmoothing(0)
 
     const W = (canvas.width  = window.innerWidth)
     const H = (canvas.height = window.innerHeight)
@@ -105,9 +108,9 @@ export function BigBang() {
     }
 
     // ── Render loop ──────────────────────────────────────────
-    const tick = () => {
+    const tick = (_time: number, deltaTime: number) => {
       if (state.done) return
-      state.t += 0.016
+      state.t += deltaTime * 0.001   // accurate delta — works at any fps
       const t = state.t
       ctx.clearRect(0, 0, W, H)
 
@@ -220,6 +223,7 @@ export function BigBang() {
       }
 
       // ── Explosion particles ───────────────────────────────────
+      ctx.lineCap = 'round'   // set once per frame, not per trail segment
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i]
         p.trail.push({ x: p.x, y: p.y })
@@ -240,7 +244,6 @@ export function BigBang() {
           ctx.globalAlpha = frac * p.alpha * 0.45
           ctx.strokeStyle = p.color
           ctx.lineWidth   = p.r * frac
-          ctx.lineCap     = 'round'
           ctx.beginPath()
           ctx.moveTo(p.trail[j - 1].x, p.trail[j - 1].y)
           ctx.lineTo(p.trail[j].x,     p.trail[j].y)

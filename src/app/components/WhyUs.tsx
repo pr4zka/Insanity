@@ -114,7 +114,7 @@ export function WhyUs() {
       className="h-screen flex flex-col justify-center pt-20 pb-6 lg:pt-24 lg:pb-10 px-4 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden"
     >
       <div ref={bgTextRef} className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0" aria-hidden="true">
-        <span className="text-[22vw] font-black text-white/[0.025] leading-none tracking-tighter whitespace-nowrap">
+        <span className="text-[14vw] md:text-[22vw] font-black text-white/[0.025] leading-none tracking-tighter whitespace-nowrap">
           WHY US
         </span>
       </div>

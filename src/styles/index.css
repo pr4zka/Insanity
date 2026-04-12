@@ -13,3 +13,35 @@ body::after {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 200px 200px;
 }
+
+/* ── Hide scrollbar inside section panels ─────────────────── */
+.ss-inner::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Mobile optimizations ─────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Reduce blur cost on low-end devices */
+  [class*="blur-[100px]"],
+  [class*="blur-[120px]"],
+  [class*="blur-[140px]"] {
+    filter: blur(60px);
+  }
+  /* Remove tap highlight on interactive elements */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Prevent rogue horizontal scroll from absolute elements */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
