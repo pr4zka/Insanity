@@ -14,9 +14,8 @@ const SUBTITLE =
   'Transformamos ideas en soluciones digitales extraordinarias. Tecnología de vanguardia para impulsar tu negocio al futuro.'
 
 export function Hero() {
-  // Mount the Sketchfab iframe only after BigBang finishes (~4s) so it doesn't
-  // compete with the canvas animation for GPU/network resources at startup.
-  const [iframeReady, setIframeReady] = useState(false)
+  // iframe mounts immediately (hidden) so model preloads during BigBang
+  const [iframeReady] = useState(true)
   const [astronautReady, setAstronautReady] = useState(false)
 
   const sectionRef    = useRef<HTMLElement>(null)
@@ -28,14 +27,32 @@ export function Hero() {
   const galaxyRef     = useRef<HTMLDivElement>(null)
   const scrollRef     = useRef<HTMLDivElement>(null)
   const astronautRef  = useRef<HTMLDivElement>(null)
-  const iframeRef     = useRef<HTMLIFrameElement>(null)
-  const loadFiredRef  = useRef(false)
+  const iframeRef     = useRef<HTMLIFrameElement | null>(null)
 
-  // Loading state — onLoad + 1500ms delay + 8s fallback
+  // Reveal only when Sketchfab signals the model is fully rendered (postMessage API)
   useEffect(() => {
-    const tMount = setTimeout(() => setIframeReady(true), 3800)
-    const tShow  = setTimeout(() => setAstronautReady(true), 5200)
-    return () => { clearTimeout(tMount); clearTimeout(tShow) }
+    let revealed = false
+    const reveal = () => {
+      if (revealed) return
+      revealed = true
+      // Extra 800ms for WebGL to finish compositing before we remove the cover
+      setTimeout(() => setAstronautReady(true), 800)
+    }
+
+    const onMessage = (e: MessageEvent) => {
+      try {
+        const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+        if (d?.type === 'SKETCHFAB_API_SUCCESS') reveal()
+      } catch { /* ignore */ }
+    }
+    window.addEventListener('message', onMessage)
+    // Fallback: reveal after 15s regardless (slow connections)
+    const fallback = setTimeout(reveal, 15000)
+
+    return () => {
+      window.removeEventListener('message', onMessage)
+      clearTimeout(fallback)
+    }
   }, [])
 
   // GSAP entrance animation when astronaut is ready
@@ -126,12 +143,17 @@ export function Hero() {
         {iframeReady && (
           <iframe
             title="Floating Astronaut"
-            src="https://sketchfab.com/models/848c04d21c274b4cba8954816f26dd8a/embed?autostart=1&ui_controls=0&ui_infos=0&ui_annotations=0&ui_watermark=0&ui_hint=0&preload=1&dnt=1&autospin=0.3&transparent=1"
+            src="https://sketchfab.com/models/848c04d21c274b4cba8954816f26dd8a/embed?autostart=1&ui_controls=0&ui_infos=0&ui_annotations=0&ui_watermark=0&ui_hint=0&ui_loading=0&preload=1&dnt=1&autospin=0.3&transparent=1&api_id=hero"
             allow="autoplay; fullscreen; xr-spatial-tracking"
             className="border-0"
             style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: '-90px',
               width: '100%',
-              height: '100%',
+              height: 'calc(100% + 90px)',
               transform: 'scale(0.9)',
               transformOrigin: '50% 45%',
             }}
